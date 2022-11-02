@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
 const passport = require('../config/passport')
+const path = require('path')
+const multer = require('multer')
 
 const { Message, User } = require('../models/index')
 
@@ -42,6 +44,21 @@ app.get('/messages', passport.authenticate('jwt'), async (req, res) => {
         res.status(404).json('Not found')
     }
 })
+
+// post profil pic
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'public/')
+    },
+    filename: function (req, file, cb) {
+        const fileType = path.extname(file.originalname)
+        cb(null, Date.now() + fileType)
+    },
+})
+
+const upload = multer({ storage: storage })
+
+app.post('/picture', upload.single('profile_picture'), (req, res, next) => {})
 
 app.delete('/:id', passport.authenticate('jwt'), async (req, res) => {
     const { id } = req.params

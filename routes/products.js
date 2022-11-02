@@ -2,6 +2,9 @@ const express = require('express')
 const { Op } = require('sequelize')
 const app = express()
 const passport = require('../config/passport')
+const path = require('path')
+const multer = require('multer')
+
 const { Message, Product } = require('../models/index')
 
 app.post('/', passport.authenticate('jwt'), async (req, res) => {
@@ -78,6 +81,21 @@ app.get('/:id/messages', passport.authenticate('jwt'), async (req, res) => {
         res.status(404).json('Not found')
     }
 })
+
+// Post des images
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'public/')
+    },
+    filename: function (req, file, cb) {
+        const fileType = path.extname(file.originalname)
+        cb(null, Date.now() + fileType)
+    },
+})
+
+const upload = multer({ storage: storage })
+
+app.post('/photos', upload.array('product_photos', 5), (req, res, next) => {})
 
 app.delete('/:id', passport.authenticate('jwt'), async (req, res) => {
     const { id } = req.params
