@@ -3,6 +3,7 @@ const express = require('express')
 const app = express()
 const session = require('express-session')
 const cors = require('cors')
+const authRoutes = require('./routes/auth')
 require('./models/index')
 
 app.use(cors('*'))
@@ -17,7 +18,7 @@ app.use(
         saveUninitialized: false,
     })
 )
-
+app.use('/auth', authRoutes)
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`)
 })
