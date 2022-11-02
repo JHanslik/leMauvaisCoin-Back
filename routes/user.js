@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 const passport = require('../config/passport')
 
-const { User } = require('../models/index')
+const { Message, User } = require('../models/index')
 
 app.get('/me', passport.authenticate('jwt'), (req, res) => {
     res.json(req.body)
@@ -27,6 +27,19 @@ app.put('/:id', passport.authenticate('jwt'), async (req, res) => {
     } catch (e) {
         console.log(e)
         res.status(500).json('Internal server error')
+    }
+})
+
+app.get('/messages', passport.authenticate('jwt'), async (req, res) => {
+    try {
+        const messages = await Message.findAll({
+            where: {
+                senderId: req.user.id,
+            },
+        })
+        res.json(messages)
+    } catch (e) {
+        res.status(404).json('Not found')
     }
 })
 

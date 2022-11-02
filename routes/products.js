@@ -1,7 +1,8 @@
 const express = require('express')
+const { Op } = require('sequelize')
 const app = express()
 const passport = require('../config/passport')
-const {Product} = require('../models/index')
+const { Message, Product } = require('../models/index')
 
 app.post('/', passport.authenticate('jwt'), async (req, res) => {
     const { title, content, price } = req.body
@@ -20,8 +21,8 @@ app.get('/:id', passport.authenticate('jwt'), (req, res) => {
 })
 
 app.get('/', passport.authenticate('jwt'), async (req, res) => {
-        const products = await Product.findAll()
-        res.json(products)
+    const products = await Product.findAll()
+    res.json(products)
 })
 
 app.put('/:id', passport.authenticate('jwt'), async (req, res) => {
@@ -46,6 +47,38 @@ app.put('/:id', passport.authenticate('jwt'), async (req, res) => {
     }
 })
 
+// post messages related to product
+app.post('/:id/messages', passport.authenticate('jwt'), async (req, res) => {
+    const { title, content } = req.body
+    const messages = await Message.create({
+        title,
+        content,
+        senderId: req.user.id,
+        receiverId: req.body.receiverId,
+        ProductId: req.params.id,
+    })
+    console.log(req.params.id)
+    res.json(messages)
+})
+
+// Get messages related to product
+app.get('/:id/messages', passport.authenticate('jwt'), async (req, res) => {
+    try {
+        const messages = await Message.findAll({
+            where: {
+                ProductId: req.params.id,
+                [Op.or]: [
+                    { senderId: req.user.id },
+                    { receiverId: req.user.id },
+                ],
+            },
+        })
+        res.json(messages)
+    } catch (e) {
+        res.status(404).json('Not found')
+    }
+})
+
 app.delete('/:id', passport.authenticate('jwt'), async (req, res) => {
     const { id } = req.params
     try {
@@ -58,7 +91,5 @@ app.delete('/:id', passport.authenticate('jwt'), async (req, res) => {
         res.status(500).json('Internal server error')
     }
 })
-
-
 
 module.exports = app
