@@ -19,6 +19,11 @@ app.get('/:id', passport.authenticate('jwt'), (req, res) => {
     res.json(req.body)
 })
 
+app.get('/', passport.authenticate('jwt'), async (req, res) => {
+        const products = await Product.findAll()
+        res.json(products)
+})
+
 app.put('/:id', passport.authenticate('jwt'), async (req, res) => {
     const { id } = req.params
 
