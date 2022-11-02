@@ -22,13 +22,13 @@ const Product = require('./product')(sequelize)
 const Message = require('./message')(sequelize)
 const Image = require('./image')(sequelize)
 
-// Message.belongsTo(Product)
+Message.belongsTo(Product)
 Product.hasMany(Message)
 
-// Message.belongsTo(User)
+Message.belongsTo(User)
 User.hasMany(Message)
 
-// Product.belongsTo(User)
+Product.belongsTo(User)
 User.hasMany(Product)
 
 Image.belongsTo(Product)
