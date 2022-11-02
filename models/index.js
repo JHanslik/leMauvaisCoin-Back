@@ -25,8 +25,9 @@ const Image = require('./image')(sequelize)
 // Message.belongsTo(Product)
 Product.hasMany(Message)
 
-// Message.belongsTo(User)
-User.hasMany(Message)
+Message.belongsTo(User, { as: 'sender' })
+Message.belongsTo(User, { as: 'receiver' })
+// User.hasMany(Message)
 
 // Product.belongsTo(User)
 User.hasMany(Product)
