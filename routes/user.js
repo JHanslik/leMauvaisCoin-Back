@@ -8,7 +8,7 @@ const { body, validationResult } = require('express-validator')
 const { Message, User } = require('../models/index')
 
 app.get('/me', passport.authenticate('jwt'), (req, res) => {
-    res.json(req.body)
+    res.json(req.user)
 })
 
 app.put('/:id', passport.authenticate('jwt'), async (req, res) => {
@@ -55,9 +55,9 @@ const storage = multer.diskStorage({
         const fileType = path.extname(file.originalname)
         cb(null, Date.now() + fileType)
     },
-})  
+})
 
-const upload = multer({ storage: storage , limits: { fileSize: 16777216 }})
+const upload = multer({ storage: storage, limits: { fileSize: 16777216 } })
 
 app.post('/picture', upload.single('profile_picture'), (req, res, next) => {})
 
