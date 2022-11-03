@@ -3,6 +3,7 @@ const app = express()
 const passport = require('../config/passport')
 const path = require('path')
 const multer = require('multer')
+const { body, validationResult } = require('express-validator')
 
 const { Message, User } = require('../models/index')
 
@@ -54,9 +55,9 @@ const storage = multer.diskStorage({
         const fileType = path.extname(file.originalname)
         cb(null, Date.now() + fileType)
     },
-})
+})  
 
-const upload = multer({ storage: storage })
+const upload = multer({ storage: storage , limits: { fileSize: 16777216 }})
 
 app.post('/picture', upload.single('profile_picture'), (req, res, next) => {})
 
