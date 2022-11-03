@@ -12,7 +12,7 @@ app.use(cors('*'))
 app.use(express.json())
 app.use(express.static('public'))
 
-const port = process.env.DB_PORT
+const port = process.env.PORT
 
 app.use(
     session({
