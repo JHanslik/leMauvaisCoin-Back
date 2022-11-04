@@ -6,33 +6,44 @@ const path = require('path')
 const multer = require('multer')
 const { body, validationResult } = require('express-validator')
 
-
 const { Message, Product } = require('../models/index')
 
-app.post('/', passport.authenticate('jwt'),
-body('title').exists().withMessage("Title length isn't right"),
-body('content').isLength({min: 50}).withMessage("Content is too short"),
-body('price').exists().withMessage("Price isn't right"),
+app.post(
+    '/',
+    passport.authenticate('jwt'),
+    body('title').exists().withMessage("Title length isn't right"),
+    body('content').isLength({ min: 50 }).withMessage('Content is too short'),
+    body('price').exists().withMessage("Price isn't right"),
 
-async (req, res) => {
-    const { errors } = validationResult(req)    
-    const { title, content, price } = req.body
+    async (req, res) => {
+        const { errors } = validationResult(req)
+        const { title, content, price } = req.body
 
-    if(errors.length > 0) {
-        res.status(400).json(errors)
-    }else{
-    const products = await Product.create({
-        title,
-        content,
-        price,
-        UserId: req.user.id,
+        if (errors.length > 0) {
+            res.status(400).json(errors)
+        } else {
+            const products = await Product.create({
+                title,
+                content,
+                price,
+                UserId: req.user.id,
+            })
+            res.json(products)
+        }
+    }
+)
+
+app.get('/:id', async (req, res) => {
+    const { id } = req.params
+
+    const product = await Product.findOne({
+        where: { id },
     })
-    res.json(products)
-}
-})
-
-app.get('/:id', passport.authenticate('jwt'), (req, res) => {
-    res.json(req.body)
+    if (product) {
+        res.json(product)
+    } else {
+        res.status(404).json('Product not found')
+    }
 })
 
 app.get('/', passport.authenticate('jwt'), async (req, res) => {
@@ -63,27 +74,30 @@ app.put('/:id', passport.authenticate('jwt'), async (req, res) => {
 })
 
 // post messages related to product
-app.post('/:id/messages', passport.authenticate('jwt'), 
-body('title').exists().withMessage("Title length isn't right"),
-body('content').isLength({min: 20}).withMessage("Content is too short"),
-async (req, res) => {
-    const { errors } = validationResult(req)    
-    const { title, content } = req.body
+app.post(
+    '/:id/messages',
+    passport.authenticate('jwt'),
+    body('title').exists().withMessage("Title length isn't right"),
+    body('content').isLength({ min: 20 }).withMessage('Content is too short'),
+    async (req, res) => {
+        const { errors } = validationResult(req)
+        const { title, content } = req.body
 
-    if(errors.length > 0) {
-        res.status(400).json(errors)
-    }else{
-    const messages = await Message.create({
-        title,
-        content,
-        senderId: req.user.id,
-        receiverId: req.body.receiverId,
-        ProductId: req.params.id,
-    })
-    console.log(req.params.id)
-    res.json(messages)
+        if (errors.length > 0) {
+            res.status(400).json(errors)
+        } else {
+            const messages = await Message.create({
+                title,
+                content,
+                senderId: req.user.id,
+                receiverId: req.body.receiverId,
+                ProductId: req.params.id,
+            })
+            console.log(req.params.id)
+            res.json(messages)
+        }
     }
-})
+)
 
 // Get messages related to product
 app.get('/:id/messages', passport.authenticate('jwt'), async (req, res) => {
@@ -114,7 +128,7 @@ const storage = multer.diskStorage({
     },
 })
 
-const upload = multer({ storage: storage , limits: { fileSize: 16777216 }})
+const upload = multer({ storage: storage, limits: { fileSize: 16777216 } })
 
 app.post('/photos', upload.array('product_photos', 5), (req, res, next) => {})
 
