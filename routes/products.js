@@ -93,7 +93,8 @@ app.post(
                 receiverId: req.body.receiverId,
                 ProductId: req.params.id,
             })
-            console.log(messages)
+            console.log(req.user)
+            // console.log(req.body.receiverId)
             res.json(messages)
         }
     }
