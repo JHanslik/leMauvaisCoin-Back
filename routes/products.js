@@ -46,7 +46,7 @@ app.get('/:id', async (req, res) => {
     }
 })
 
-app.get('/', passport.authenticate('jwt'), async (req, res) => {
+app.get('/', async (req, res) => {
     const products = await Product.findAll()
     res.json(products)
 })
@@ -93,7 +93,7 @@ app.post(
                 receiverId: req.body.receiverId,
                 ProductId: req.params.id,
             })
-            console.log(req.params.id)
+            console.log(messages)
             res.json(messages)
         }
     }
